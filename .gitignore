@@ -1,1 +1,3 @@
 freemanlatrell/file_manager/local/*
+.DS_Store
+.openshiftLogs
