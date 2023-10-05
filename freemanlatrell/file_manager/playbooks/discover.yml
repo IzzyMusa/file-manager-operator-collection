@@ -7,9 +7,9 @@
     - vars/defaults.yml
 
   tasks:
-    - name: Find files the files_dir directory
+    - name: Find files in the directory
       ansible.builtin.find:
-        paths: "{{ files_dir }}"
+        paths: "{{ filespath }}"
       register: discovered_files
 
     - name: Create File CRs
@@ -21,8 +21,10 @@
           metadata:
             name: "{{ item.path | basename | lower | replace('_', '-') | replace('/', '-') | replace('.', '-') }}"
             namespace: "{{ ansible_operator_meta.namespace }}"
+            labels:
+              file-discovered: "true"
           spec:
-            filename: "{{ item.path | basename }}"
+            filename: "{{ item.path }}"
             zosendpoint: "{{ zosendpoint }}"
       with_items:
         - "{{ discovered_files.files }}"

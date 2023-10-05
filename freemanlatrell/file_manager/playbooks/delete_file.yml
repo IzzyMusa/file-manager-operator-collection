@@ -7,7 +7,24 @@
     - vars/defaults.yml
 
   tasks:
+    - name: Retrieve File object
+      kubernetes.core.k8s_info:
+        api_version: "{{ k8s_cr_version }}"
+        kind: File
+        name: "{{ ansible_operator_meta.name }}"
+        namespace: "{{ ansible_operator_meta.namespace }}"
+      register: file_instance
+      when: k8s_managed
+      delegate_to: localhost
+
+    - name: Validate if file exists
+      ansible.builtin.stat:
+        path: "{{ filename }}"
+      register: file_result
+      when: file_instance.resources[0].metadata.labels["file-discovered"] is not defined
+
     - name: Delete a file instance
       ansible.builtin.file:
         state: absent
-        path: "{{ files_dir }}/{{ filename }}"
+        path: "{{ filename }}"
+      when: file_result.stat.exists is true and file_instance.resources[0].metadata.labels["file-discovered"] is not defined

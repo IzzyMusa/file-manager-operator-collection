@@ -1,6 +1,6 @@
 domain: freemanlatrell
 name: file-manager
-version: 1.1.0
+version: 1.2.0
 displayName: File Manager
 description: >-
   # File Manager
@@ -10,6 +10,12 @@ resources:
   - kind: DiscoverFiles
     description: Discover existing Files on the host
     playbook: playbooks/discover.yml
+    vars:
+      - name: filespath
+        displayName: Files Path
+        description: >-
+          The path to the files to be discovered (ex: /tmp)
+        type: string
   - kind: File
     description: Create a File on the host
     playbook: playbooks/create_file.yml
@@ -18,7 +24,7 @@ resources:
       - name: filename
         displayName: File Name
         description: >-
-          The name of the file to be created under the /tmp/zoscb/files directory
+          The filepath and filename of the file to be created. (ex: /tmp/file.txt)
         type: string
   - kind: FileMessage
     description: Append a message to an existing File instance

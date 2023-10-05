@@ -7,17 +7,29 @@
     - vars/defaults.yml
 
   tasks:
-    - name: Create a default files_dir directory
+    - name: Validate if directory already exists
+      ansible.builtin.stat:
+        path: "{{ filename | dirname }}"
+      register: directory_data
+
+    - name: Create the file directory
       ansible.builtin.file:
-        path: "{{ files_dir }}"
+        path: "{{ filename | dirname }}"
         state: directory
         mode: '0755'
+      when: directory_data.stat.isdir is not defined
 
-    - name: Touch a file in the files_dir directory
+    - name: Validate if file already exists
+      ansible.builtin.stat:
+        path: "{{ filename }}"
+      register: file_data
+
+    - name: Touch a file in the directory
       ansible.builtin.file:
-        path: "{{ files_dir }}/{{ filename }}"
+        path: "{{ filename }}"
         state: touch
         mode: '0644'
+      when: directory_data.stat.exists is false
 
     - name: Update Custom Resource Status with file location
       operator_sdk.util.k8s_status:
@@ -26,6 +38,6 @@
         name: "{{ ansible_operator_meta.name }}"
         namespace: "{{ ansible_operator_meta.namespace }}"
         status:
-          file_location: "{{ files_dir }}/{{ filename }}"
+          file_location: "{{ filename }}"
       when: k8s_managed is defined
       delegate_to: localhost
