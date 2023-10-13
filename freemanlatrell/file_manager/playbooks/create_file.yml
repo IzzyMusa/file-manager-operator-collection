@@ -29,7 +29,7 @@
         path: "{{ filename }}"
         state: touch
         mode: '0644'
-      when: directory_data.stat.exists is false
+      when: file_data.stat.exists is false
 
     - name: Update Custom Resource Status with file location
       operator_sdk.util.k8s_status:
